@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Typography, Box } from "@mui/material";
-import { Header, HeroImage } from "./components";
+import { Header, HeroImage } from "../components";
 import { useRouter, usePathname } from "next/navigation";
 
 const Overlay = ({ isBlurred }) => {
