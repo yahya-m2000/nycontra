@@ -7,7 +7,7 @@ type Props = {};
 const page = (props: Props) => {
   return (
     <Box>
-      <Header
+      {/* <Header
         isHeaderHovered={false}
         isHome={false}
         onHeaderMouseEnter={function (): void {
@@ -16,7 +16,7 @@ const page = (props: Props) => {
         onHeaderMouseLeave={function (): void {
           throw new Error("Function not implemented.");
         }}
-      />
+      /> */}
       <Typography>women</Typography>
     </Box>
   );
