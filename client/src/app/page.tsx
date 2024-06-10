@@ -4,7 +4,11 @@ import { Typography, Box } from "@mui/material";
 import { Header, HeroImage } from "../components";
 import { useRouter, usePathname } from "next/navigation";
 
-const Overlay = ({ isBlurred }) => {
+type OverlayProps = {
+  isBlurred: boolean;
+};
+
+const Overlay: React.FC<OverlayProps> = ({ isBlurred }) => {
   return (
     isBlurred && (
       <Box

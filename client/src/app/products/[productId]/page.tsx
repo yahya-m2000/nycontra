@@ -25,8 +25,8 @@ type Params = {
 };
 
 const Page = ({ params: { productId } }: Params) => {
-  const [product, setProduct] = useState<Product | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [product, setProduct] = useState<Product>();
+  const [selectedImage, setSelectedImage] = useState<string | undefined>();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -49,7 +49,6 @@ const Page = ({ params: { productId } }: Params) => {
   const handleAddToBasket = () => {
     if (product) {
       console.log(`Adding ${product.name} to basket`);
-      // console.log(product);
       addItem(product);
     }
   };
@@ -63,13 +62,11 @@ const Page = ({ params: { productId } }: Params) => {
       <Header
         isHeaderHovered={false}
         isHome={false}
-        onHeaderMouseEnter={function (): void {}}
-        onHeaderMouseLeave={function (): void {}}
+        onHeaderMouseEnter={() => {}}
+        onHeaderMouseLeave={() => {}}
       />
       <Box display={"flex"} flex={1} width={"100vw"}>
         {/* left scrollable thumbnails */}
-
-        {/* main image */}
         <Box
           display={"flex"}
           flex={0.466}
@@ -90,7 +87,6 @@ const Page = ({ params: { productId } }: Params) => {
               key={product?.id}
               sx={{
                 cursor: "pointer",
-                // width: "20%",
                 overflowY: "auto",
               }}
             >
@@ -120,16 +116,15 @@ const Page = ({ params: { productId } }: Params) => {
                 </Box>
               ))}
             </Box>
-            {selectedImage && (
+            {selectedImage ? (
               <Box
                 sx={{
-                  // height: "calc(100vh - 20vh)",
                   overflow: "hidden",
                 }}
               >
                 <Image
                   src={selectedImage}
-                  alt={product?.name}
+                  alt={product?.name || "Product image"}
                   width={"1000"}
                   height={"1000"}
                   style={{
@@ -139,7 +134,7 @@ const Page = ({ params: { productId } }: Params) => {
                   }}
                 />
               </Box>
-            )}
+            ) : null}
           </Box>
         </Box>
         {/* right box non-scrollable with text */}
