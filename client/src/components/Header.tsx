@@ -1,12 +1,22 @@
 "use client";
 import React, { useState } from "react";
-import { Box, Typography, IconButton, TextField, Input } from "@mui/material";
-import { useRouter, usePathname } from "next/navigation";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Input,
+  Drawer,
+  Button,
+} from "@mui/material";
+import { useRouter } from "next/navigation";
 import { ShoppingBagOutlined, SearchOutlined } from "@mui/icons-material";
+import { useBasket } from "@/context/BasketContext";
+import Image from "next/image";
 
-let buttonMenuItems: string[] = [];
-
-const HeaderTitle: React.FC<HeaderProps> = ({ isHeaderHovered, isHome }) => {
+const HeaderTitle: React.FC<{ isHeaderHovered: boolean; isHome: boolean }> = ({
+  isHeaderHovered,
+  isHome,
+}) => {
   const router = useRouter();
   return (
     <Box
@@ -29,10 +39,10 @@ const HeaderTitle: React.FC<HeaderProps> = ({ isHeaderHovered, isHome }) => {
   );
 };
 
-const DynamicIconButton: React.FC<DynamicIconButtonProps> = ({
-  icon,
-  onIconClick,
-}) => {
+const DynamicIconButton: React.FC<{
+  icon: React.ReactNode;
+  onIconClick: () => void;
+}> = ({ icon, onIconClick }) => {
   return (
     <IconButton
       sx={{
@@ -48,13 +58,12 @@ const DynamicIconButton: React.FC<DynamicIconButtonProps> = ({
   );
 };
 
-const HeaderSearchButton: React.FC<HeaderSearchButtonProps> = ({
-  isHeaderHovered,
-  isHome,
-}) => {
+const HeaderSearchButton: React.FC<{
+  isHeaderHovered: boolean;
+  isHome: boolean;
+}> = ({ isHeaderHovered, isHome }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
 
@@ -62,7 +71,6 @@ const HeaderSearchButton: React.FC<HeaderSearchButtonProps> = ({
   const handleMouseLeave = () => setIsHovered(false);
 
   const handleSearch = async () => {
-    // Construct the search query
     const query = `/search?q=${encodeURIComponent(searchValue)}`;
     console.log(query);
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -104,7 +112,6 @@ const HeaderSearchButton: React.FC<HeaderSearchButtonProps> = ({
               color: !isHome ? "black" : isHeaderHovered ? "black" : "white",
               fontSize: "0.7rem",
             }}
-            // variant="standard"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyPress={async (e) => {
@@ -120,33 +127,41 @@ const HeaderSearchButton: React.FC<HeaderSearchButtonProps> = ({
   );
 };
 
-const HeaderTextButton: React.FC<HeaderTextProps> = ({
-  name,
-  isHeaderHovered,
-  isHome,
-}) => {
+const HeaderTextButton: React.FC<{
+  name: string;
+  isHeaderHovered: boolean;
+  isHome: boolean;
+}> = ({ name, isHeaderHovered, isHome }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [hoveredItem, setHoveredItem] = useState("");
+
+  const router = useRouter();
 
   const handleTextMouseEnter = (itemName: string) => {
     setHoveredItem(itemName);
   };
 
-  const handleTextMouseLeave = () => {
-    setHoveredItem("");
-  };
+  const handleTextMouseLeave = () => setHoveredItem("");
 
   const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => setIsHovered(false);
 
+  const handleItemClick = (searchTerm: string) => {
+    router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
+  };
+
+  const buttonMenuItems: { label: string; search: string }[] = [];
+
   if (name === "FEATURED") {
-    buttonMenuItems = ["Featured Item 1", "Featured Item 2", "Featured Item 3"];
+    buttonMenuItems.push(
+      { label: "NEW RELEASES", search: "new releases" },
+      { label: "SHOP ALL", search: "all" }
+    );
   } else if (name === "COLLECTIONS") {
-    buttonMenuItems = [
-      "Collection Item 1",
-      "Collection Item 2",
-      "Collection Item 3",
-    ];
+    buttonMenuItems.push(
+      { label: "NIKE", search: "nike" },
+      { label: "FEAR OF GOD", search: "fear of god" }
+    );
   }
 
   return (
@@ -190,15 +205,16 @@ const HeaderTextButton: React.FC<HeaderTextProps> = ({
                 key={index}
                 variant="subtitle2"
                 fontSize={"0.65rem"}
-                onMouseEnter={() => handleTextMouseEnter(item)}
+                onMouseEnter={() => handleTextMouseEnter(item.label)}
                 onMouseLeave={handleTextMouseLeave}
+                onClick={() => handleItemClick(item.search)}
                 sx={{
-                  color: hoveredItem === item ? "black" : "grey", // Change color when hovered
+                  color: hoveredItem === item.label ? "black" : "grey",
                   transition: "color 0.2s ease",
                   cursor: "pointer",
                 }}
               >
-                {item}
+                {item.label}
               </Typography>
             ))}
           </Box>
@@ -208,77 +224,169 @@ const HeaderTextButton: React.FC<HeaderTextProps> = ({
   );
 };
 
-const Header: React.FC<HeaderProps> = ({
-  isHeaderHovered,
-  isHome,
-  onHeaderMouseEnter,
-  onHeaderMouseLeave,
-}) => {
+const Header: React.FC<{
+  isHeaderHovered: boolean;
+  isHome: boolean;
+  onHeaderMouseEnter: () => void;
+  onHeaderMouseLeave: () => void;
+}> = ({ isHeaderHovered, isHome, onHeaderMouseEnter, onHeaderMouseLeave }) => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { items } = useBasket();
   const router = useRouter();
+
+  const handleBasketClick = () => {
+    setDrawerOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
+  };
+
+  const handleBasketNavigate = () => {
+    setDrawerOpen(false);
+    router.push("/basket");
+  };
+
   return (
-    <Box
-      onMouseEnter={onHeaderMouseEnter}
-      onMouseLeave={onHeaderMouseLeave}
-      sx={{
-        display: "flex",
-        flex: 1,
-        backgroundColor: !isHome
-          ? "white"
-          : isHeaderHovered
-          ? "white"
-          : "transparent",
-        transition: "background-color 0.2s ease",
-        zIndex: 1000,
-      }}
-      height={"5vh"}
-      width={"100vw"}
-      justifyContent={"space-between"}
-      alignItems={"center"}
-      position={"fixed"}
-    >
-      <Box display={"flex"} flex={1} flexDirection={"row"}>
-        <HeaderTextButton
-          name="FEATURED"
-          isHeaderHovered={isHeaderHovered}
-          isHome={isHome}
-        />
-        <HeaderTextButton
-          name="COLLECTIONS"
-          isHeaderHovered={isHeaderHovered}
-          isHome={isHome}
-        />
-        {/* <HeaderTextButton
-          name="ACCESSORIES"
-          isHeaderHovered={isHeaderHovered}
-          isHome={isHome}
-        /> */}
+    <>
+      <Box
+        onMouseEnter={onHeaderMouseEnter}
+        onMouseLeave={onHeaderMouseLeave}
+        sx={{
+          display: "flex",
+          flex: 1,
+          backgroundColor: !isHome
+            ? "white"
+            : isHeaderHovered
+            ? "white"
+            : "transparent",
+          transition: "background-color 0.2s ease",
+          zIndex: 1000,
+        }}
+        height={"5vh"}
+        width={"100vw"}
+        justifyContent={"space-between"}
+        alignItems={"center"}
+        position={"fixed"}
+      >
+        <Box display={"flex"} flex={1} flexDirection={"row"}>
+          <HeaderTextButton
+            name="FEATURED"
+            isHeaderHovered={isHeaderHovered}
+            isHome={isHome}
+          />
+          <HeaderTextButton
+            name="COLLECTIONS"
+            isHeaderHovered={isHeaderHovered}
+            isHome={isHome}
+          />
+        </Box>
+        <HeaderTitle isHeaderHovered={isHeaderHovered} isHome={isHome} />
+        <Box display={"flex"} flex={1} justifyContent={"flex-end"}>
+          <HeaderSearchButton
+            isHeaderHovered={isHeaderHovered}
+            isHome={isHome}
+          />
+          <DynamicIconButton
+            icon={
+              <ShoppingBagOutlined
+                sx={{
+                  color: !isHome
+                    ? "black"
+                    : isHeaderHovered
+                    ? "black"
+                    : "white",
+                }}
+              />
+            }
+            onIconClick={handleBasketClick}
+          />
+        </Box>
       </Box>
-      <HeaderTitle
-        isHeaderHovered={isHeaderHovered}
-        isHome={isHome}
-        onHeaderMouseEnter={function (): void {
-          throw new Error("Function not implemented.");
-        }}
-        onHeaderMouseLeave={function (): void {
-          throw new Error("Function not implemented.");
-        }}
-      />
-      <Box display={"flex"} flex={1} justifyContent={"flex-end"}>
-        <HeaderSearchButton isHeaderHovered={isHeaderHovered} isHome={isHome} />
-        <DynamicIconButton
-          icon={
-            <ShoppingBagOutlined
-              sx={{
-                color: !isHome ? "black" : isHeaderHovered ? "black" : "white",
-              }}
-            />
-          }
-          onIconClick={() => {
-            router.push("/basket");
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={handleDrawerClose}
+        sx={{ width: "250px" }}
+      >
+        <Box
+          sx={{
+            width: "40vw",
+            padding: "2.5vw",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
           }}
-        />
-      </Box>
-    </Box>
+        >
+          <Box>
+            <Typography variant="subtitle2" color={"grey"}>
+              SHOPPING CART
+            </Typography>
+            {items.length === 0 ? (
+              <Typography variant="body2" sx={{ marginTop: "20px" }}>
+                No items in basket
+              </Typography>
+            ) : (
+              items.map((item) => (
+                <Box
+                  key={item.product.id}
+                  sx={{
+                    display: "flex",
+                    // alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    margin: "10px 0",
+                  }}
+                >
+                  <Box sx={{ display: "flex", flexDirection: "row" }}>
+                    <Box
+                      sx={{
+                        width: "7vw",
+                        height: "17vh",
+                        position: "relative",
+                      }}
+                    >
+                      <Image
+                        src={item.product.images[0]}
+                        alt={item.product.name}
+                        layout="fill"
+                        objectFit="cover"
+                      />
+                    </Box>
+                    <Box sx={{ marginLeft: "10px" }}>
+                      <Typography variant="body2">
+                        {item.product.name.toUpperCase()}
+                      </Typography>
+                      <Typography variant="body2">
+                        Qty: {item.quantity}
+                      </Typography>
+                      <Typography variant="body2">
+                        {/* {item.sizes} */}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box>
+                    <Typography variant="body2">
+                      £{item.product.price}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))
+            )}
+          </Box>
+          <Box>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleBasketNavigate}
+              sx={{ mt: 4 }}
+            >
+              Go to Basket
+            </Button>
+          </Box>
+        </Box>
+      </Drawer>
+    </>
   );
 };
 

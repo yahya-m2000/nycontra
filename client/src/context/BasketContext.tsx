@@ -7,6 +7,9 @@ type Product = {
   price: number;
   images: string[];
   sizes: string[];
+  colors: string[];
+  selectedSize?: string;
+  selectedColor?: string;
 };
 
 type BasketItem = {
@@ -16,7 +19,7 @@ type BasketItem = {
 
 type BasketContextType = {
   items: BasketItem[];
-  addItem: (item: Product) => void;
+  addItem: (product: Product, selectedSize: string, selectedColor: string) => void;
   incrementItem: (itemId: string) => void;
   decrementItem: (itemId: string) => void;
 };
@@ -35,19 +38,26 @@ export const BasketProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [items, setItems] = useState<BasketItem[]>([]);
 
-  const addItem = (product: Product) => {
+  const addItem = (product: Product, selectedSize: string, selectedColor: string) => {
+    const productWithSelection = { ...product, selectedSize, selectedColor };
+
     setItems((prevItems) => {
       const existingItem = prevItems.find(
-        (item) => item.product.id === product.id
+        (item) => 
+          item.product.id === product.id && 
+          item.product.selectedSize === selectedSize && 
+          item.product.selectedColor === selectedColor
       );
       if (existingItem) {
         return prevItems.map((item) =>
-          item.product.id === product.id
+          item.product.id === product.id && 
+          item.product.selectedSize === selectedSize && 
+          item.product.selectedColor === selectedColor
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
-      return [...prevItems, { product, quantity: 1 }];
+      return [...prevItems, { product: productWithSelection, quantity: 1 }];
     });
   };
 
