@@ -43,31 +43,28 @@ const HeroImage = () => {
             fontSize={"small"}
             fontWeight={"light"}
           >
-            SHOP MENS
-          </Typography>
-          <Typography
-            paddingInline={4}
-            onClick={() => router.push("/women")}
-            className="poppins"
-            color={"white"}
-            fontSize={"small"}
-            fontWeight={"light"}
-          >
-            SHOP WOMENS
+            SHOP NOW
           </Typography>
         </Box>
       </Box>
-      <Image
-        src={require("../images/background.png")}
-        alt={""}
-        style={{
+      <Box
+        sx={{
           position: "absolute",
           zIndex: 0,
-          height: "100vh",
-          width: "100vw",
+          width: "100%",
+          height: "100%",
+          overflow: "hidden",
           opacity: 0.5,
         }}
-      />
+      >
+        <Image
+          src={require("../images/background.png")}
+          alt="Background"
+          layout="fill"
+          objectFit="cover"
+          quality={100}
+        />
+      </Box>
     </Box>
   );
 };

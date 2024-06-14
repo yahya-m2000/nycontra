@@ -80,14 +80,14 @@ export async function POST(req: NextRequest) {
     console.log("Email HTML:", customerEmailHtml);
 
     const customerEmailResult = await resend.emails.send({
-      from: "orders@resend.dev",
+      from: "orders@nycontra.com",
       to: customer.email,
       subject: "Order Confirmation",
       html: customerEmailHtml,
     });
 
     const storeEmailResult = await resend.emails.send({
-      from: "orders@resend.dev",
+      from: "orders@nycontra.com",
       to: "yahyaimohamed2000@gmail.com", // Replace with the store's email
       subject: "New Order Received",
       html: storeEmailHtml,

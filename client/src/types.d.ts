@@ -14,6 +14,7 @@ type Product = {
   shippingPolicy: string;
   createdAt: string;
   updatedAt: string;
+  
 };
 
 // HEADER PROPS

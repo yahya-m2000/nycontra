@@ -1,35 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Typography, Box } from "@mui/material";
+import { Box } from "@mui/material";
 import { Header, HeroImage } from "../components";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 
-type OverlayProps = {
-  isBlurred: boolean;
-};
-
-const Overlay: React.FC<OverlayProps> = ({ isBlurred }) => {
-  return (
-    isBlurred && (
-      <Box
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          backdropFilter: "blur(5px)",
-          zIndex: 1000, // Ensure it's above all other content
-        }}
-      />
-    )
-  );
-};
 export default function Home() {
   const [isHeaderHovered, setIsHeaderHovered] = useState(false);
   const [isHome, setIsHome] = useState(true);
-
-  const router = useRouter();
   const pathname = usePathname();
 
   const handleHeaderMouseEnter = () => {
@@ -41,10 +18,8 @@ export default function Home() {
   };
 
   useEffect(() => {
-    setIsHeaderHovered(pathname === "/");
     setIsHome(pathname === "/");
-    console.log(`${isHome}`);
-  }, [pathname, isHome]);
+  }, [pathname]);
 
   return (
     <main

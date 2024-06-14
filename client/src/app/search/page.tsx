@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, CircularProgress } from "@mui/material"; // Import CircularProgress for the loading circle
 import { Header } from "@/components";
 import dynamic from "next/dynamic";
 
@@ -9,7 +9,7 @@ const DynamicSearchContent = dynamic(
   () => import("@/components/SearchContent"),
   {
     ssr: false,
-    loading: () => <p>Loading search page...</p>,
+    loading: () => <CircularProgress />, // Render CircularProgress while loading
   }
 );
 
